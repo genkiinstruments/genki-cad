@@ -1,0 +1,19 @@
+[project]
+name = "ocp-watch"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [{ name = "multivac61", email = "olafur@genkiinstruments.com" }]
+requires-python = ">=3.12"
+dependencies = [
+    "build123d>=0.10.0",
+    "ocp-vscode>=2.6.1",
+    "watchfiles>=0.24.0",
+]
+
+[project.scripts]
+ocp-watch = "ocp_watch:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
