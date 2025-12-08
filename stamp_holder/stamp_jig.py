@@ -20,7 +20,8 @@ NUM_STAMPS = 3
 # Cavity: 18mm wide (X) × 6mm deep (Z)
 
 # Jig parameters
-STAMP_OFFSET = 10.0  # mm (stamp center above TOP of USB-C ports, Y axis)
+STAMP_OFFSET = 17.0  # mm (stamp center above TOP of USB-C ports, Y axis) - moved up 7mm
+STAMP_X_ADJUST = 3.0  # mm (moved towards center from left port)
 WALL_THICKNESS = 2.0  # mm (minimum walls on all sides)
 PAD_THICKNESS = 6.0  # mm (thickness of the main plate - matches stamp depth)
 SLEEVE_HEIGHT = 6.0  # mm (height of stamp slot, Y axis)
@@ -55,8 +56,8 @@ def build_jig():
     # Total span of USB-C ports
     total_usbc_span = (NUM_PORTS * USBC_WIDTH) + ((NUM_PORTS - 1) * USBC_GAP)
 
-    # Stamp is positioned above the LEFT port (mirrored design)
-    stamp_x_pos = -port_spacing  # Left port X position
+    # Stamp is positioned above the LEFT port (mirrored design), adjusted towards center
+    stamp_x_pos = -port_spacing + STAMP_X_ADJUST  # Left port X position + adjustment
 
     # Body dimensions (ensure 2mm walls on all sides)
     # X: from left edge of stamp cavity to right port edge + walls
