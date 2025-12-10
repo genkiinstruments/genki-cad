@@ -1,0 +1,50 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@main
+
+      - name: Build all shapes
+        run: |
+          mkdir -p dist
+
+          # Find all Python files in subdirectories (except src)
+          for dir in */; do
+            if [[ "$dir" == "src/" ]] || [[ "$dir" == "dist/" ]]; then
+              continue
+            fi
+
+            # Find Python files in this directory
+            for pyfile in "$dir"*.py; do
+              if [[ -f "$pyfile" ]]; then
+                echo "Building: $pyfile"
+                (cd "$(dirname "$pyfile")" && uv run --frozen python "$(basename "$pyfile")")
+              fi
+            done
+          done
+
+          # Collect generated STEP and STL files from subdirectories
+          find . -maxdepth 2 -type f \( -name "*.step" -o -name "*.stl" \) ! -path "./dist/*" -exec cp {} dist/ \;
+
+          echo "Built files:"
+          ls -la dist/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@master
+        with:
+          files: dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
