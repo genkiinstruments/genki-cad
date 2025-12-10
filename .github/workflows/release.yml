@@ -41,6 +41,9 @@ jobs:
           echo "Built files:"
           ls -la dist/
 
+          # Create a zip archive of all files
+          (cd dist && zip -r "genki-cad-${{ github.ref_name }}.zip" *.step *.stl)
+
       - name: Create Release
         uses: softprops/action-gh-release@master
         with:
