@@ -10,14 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@main
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@main
-
-      - name: Build all shapes
-        run: |
+      - uses: actions/checkout@main
+      - uses: astral-sh/setup-uv@main
+      - run: |
           mkdir -p dist
 
           # Find all Python files in subdirectories (except src)
@@ -44,8 +39,7 @@ jobs:
           # Create a zip archive of all files
           (cd dist && zip -r "genki-cad-${{ github.ref_name }}.zip" *.step *.stl)
 
-      - name: Create Release
-        uses: softprops/action-gh-release@master
+      - uses: softprops/action-gh-release@master
         with:
           files: dist/*
           generate_release_notes: true
