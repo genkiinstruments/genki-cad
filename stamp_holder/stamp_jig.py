@@ -10,20 +10,20 @@ USBC_GAP = 7.6  # mm (gap between ports)
 NUM_PORTS = 3
 USBC_TAB_DEPTH = 2.0  # mm (how deep tabs insert into ports, Z axis)
 
-# Stamp dimensions (all 3 identical)
+# Stamp dimensions (single stamp per jig)
 STAMP_HEIGHT = 61  # mm
 STAMP_WIDTH = 6  # mm (X axis - horizontal)
 STAMP_DEPTH = 6  # mm (Z axis - into enclosure)
-NUM_STAMPS = 3
+STAMP_SPACING = 4  # mm between stamp positions
 
-# Stamp arrangement: side-by-side left to right (X axis)
-# Cavity: 18mm wide (X) × 6mm deep (Z)
+# 3 stamp positions (each jig holds 1 stamp at different X position)
+# Stamps are 6mm wide, so positions are 6mm apart
 
 # Jig parameters
-STAMP_OFFSET = 17.0  # mm (stamp center above TOP of USB-C ports, Y axis) - moved up 7mm
+STAMP_OFFSET = 18.0  # mm (stamp center above TOP of USB-C ports, Y axis)
 STAMP_X_ADJUST = 3.0  # mm (moved towards center from left port)
 WALL_THICKNESS = 2.0  # mm (minimum walls on all sides)
-PAD_THICKNESS = 6.0  # mm (thickness of the main plate - matches stamp depth)
+PAD_THICKNESS = 12.0  # mm (thickness of the main plate)
 SLEEVE_HEIGHT = 6.0  # mm (height of stamp slot, Y axis)
 
 # Tight fit tolerances
@@ -31,9 +31,12 @@ USBC_TOLERANCE = -0.2  # interference fit for USB-C tabs
 STAMP_TOLERANCE = -0.2  # interference fit for stamps
 
 
-def build_jig():
+def build_jig(stamp_index):
     """
     Build the stamp alignment jig with USB-C registration.
+
+    Args:
+        stamp_index: 0, 1, or 2 for the three stamp positions (left to right)
 
     Coordinate system:
     - X: horizontal along enclosure (USB-C ports in a row)
@@ -41,8 +44,8 @@ def build_jig():
     - Z: depth into enclosure (USB-C tabs insert into ports)
     """
 
-    # Stamp cavity dimensions (3 stamps side-by-side, left to right)
-    stamp_cavity_width = (STAMP_WIDTH * NUM_STAMPS) + STAMP_TOLERANCE  # X = 18mm
+    # Stamp cavity dimensions (single stamp, 6mm wide)
+    stamp_cavity_width = STAMP_WIDTH + STAMP_TOLERANCE  # X = 6mm (single stamp)
     stamp_cavity_height = SLEEVE_HEIGHT  # Y (vertical height of holder)
     stamp_cavity_depth = STAMP_DEPTH + STAMP_TOLERANCE  # Z = 6mm
 
@@ -56,12 +59,17 @@ def build_jig():
     # Total span of USB-C ports
     total_usbc_span = (NUM_PORTS * USBC_WIDTH) + ((NUM_PORTS - 1) * USBC_GAP)
 
-    # Stamp is positioned above the LEFT port (mirrored design), adjusted towards center
-    stamp_x_pos = -port_spacing + STAMP_X_ADJUST  # Left port X position + adjustment
+    # Base position (center of the full 18mm stamp area, same as before)
+    base_x_pos = -port_spacing + STAMP_X_ADJUST
 
-    # Body dimensions (ensure 2mm walls on all sides)
-    # X: from left edge of stamp cavity to right port edge + walls
-    body_left = stamp_x_pos - (stamp_cavity_width / 2) - WALL_THICKNESS
+    # First stamp starts at left edge of 18mm area (offset by -6mm from center)
+    # Each subsequent stamp is offset by 3mm
+    stamp_x_pos = base_x_pos - STAMP_WIDTH + (stamp_index * STAMP_SPACING)
+
+    # Body dimensions - FIXED size spanning all USB-C ports (same for all 3 jigs)
+    # Use the full 18mm stamp area for body width calculation
+    full_stamp_width = STAMP_WIDTH * 3  # 18mm total stamp area
+    body_left = base_x_pos - (full_stamp_width / 2) - WALL_THICKNESS
     body_right = port_spacing + (USBC_WIDTH / 2) + WALL_THICKNESS
     body_width = body_right - body_left
     body_center_x = (body_left + body_right) / 2
@@ -94,17 +102,15 @@ def build_jig():
         # Add USB-C registration tabs (extending backward into ports)
         port_positions = [
             -port_spacing,  # Left port
-            0,              # Center port
-            port_spacing,   # Right port
+            0,  # Center port
+            port_spacing,  # Right port
         ]
 
         for x_pos in port_positions:
             with bd.BuildSketch(bd.Plane.XY.offset(body_depth)):
                 with bd.Locations([(x_pos, 0)]):
                     bd.RectangleRounded(
-                        usbc_tab_width,
-                        usbc_tab_height,
-                        radius=USBC_CORNER_RADIUS
+                        usbc_tab_width, usbc_tab_height, radius=USBC_CORNER_RADIUS
                     )
             bd.extrude(amount=USBC_TAB_DEPTH)
 
@@ -113,19 +119,20 @@ def build_jig():
 
 def run():
     """Preview the jig."""
-    part = build_jig()
+    part = build_jig(0)
     show_all()
 
 
 def export():
-    """Export the jig for 3D printing."""
-    part = build_jig()
-    assert part.part is not None
+    """Export 3 jigs for 3D printing (one for each stamp position)."""
+    for stamp_index in range(3):
+        part = build_jig(stamp_index)
+        assert part.part is not None
 
-    filename = f"stamp_jig_{int(STAMP_OFFSET)}mm_offset"
-    bd.export_step(part.part, f"{filename}.step")
-    bd.export_stl(part.part, f"{filename}.stl")
-    print(f"Exported: {filename}.step, {filename}.stl")
+        filename = f"stamp_jig_{stamp_index + 1}_{int(STAMP_OFFSET)}mm_offset"
+        bd.export_step(part.part, f"{filename}.step")
+        bd.export_stl(part.part, f"{filename}.stl")
+        print(f"Exported: {filename}.step, {filename}.stl")
 
 
 if __name__ == "__main__":
