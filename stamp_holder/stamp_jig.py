@@ -4,8 +4,8 @@ import build123d as bd
 
 # USB-C port dimensions
 USBC_WIDTH = 9.0  # mm (horizontal, X axis)
-USBC_HEIGHT = 3.9  # mm (vertical on enclosure face, Y axis)
-USBC_CORNER_RADIUS = 1.5  # mm (rounded corners)
+USBC_HEIGHT = 3.2  # mm (vertical on enclosure face, Y axis)
+USBC_CORNER_RADIUS = 1.0  # mm (rounded corners)
 USBC_GAP = 7.6  # mm (gap between ports)
 NUM_PORTS = 3
 USBC_TAB_DEPTH = 2.0  # mm (how deep tabs insert into ports, Z axis)
@@ -20,7 +20,7 @@ STAMP_SPACING = 4  # mm between stamp positions
 # Stamps are 6mm wide, so positions are 6mm apart
 
 # Jig parameters
-STAMP_OFFSET = 18.0  # mm (stamp center above TOP of USB-C ports, Y axis)
+STAMP_OFFSET = 19.0  # mm (stamp center above TOP of USB-C ports, Y axis)
 STAMP_X_ADJUST = 3.0  # mm (moved towards center from left port)
 WALL_THICKNESS = 2.0  # mm (minimum walls on all sides)
 PAD_THICKNESS = 12.0  # mm (thickness of the main plate)
