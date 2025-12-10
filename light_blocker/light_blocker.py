@@ -4,7 +4,7 @@ import build123d as bd
 
 # Light blocker dimensions (rectangular outer)
 OUTER_SIZE = 3.75  # mm (square outer dimension)
-HEIGHT = 11.0  # mm (1mm longer to compress between enclosure and PCB)
+HEIGHT = 10.5  # mm (0.5mm longer to compress between enclosure and PCB)
 
 # Inner hole dimensions
 HOLE_DIAMETER_LIGHTGUIDE = 1.8  # mm (exact fit for 1.8mm light guide)
